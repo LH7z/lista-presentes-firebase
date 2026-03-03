@@ -20,7 +20,15 @@
   >
   <div id="gifts">
   </div>
-
+  <div id="popup" class="popup">
+  <div class="popup-content">
+    <h3>Anexar comprovante</h3>
+    <input type="file" id="popupFile">
+    <br><br>
+    <button onclick="confirmPurchase()">Confirmar</button>
+    <button onclick="closePopup()">Cancelar</button>
+  </div>
+</div>
 
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -66,6 +74,7 @@
     alert("Logado!");
   }
   let allGifts = [];
+  let selectedGiftId = null;
 
   function renderGifts(gifts) {
     const container = document.getElementById("gifts");
@@ -78,10 +87,9 @@
         <h3>${gift.name}</h3>
         <img src="${gift.imageUrl}" width="200">
         <button ${gift.reserved ? "disabled" : ""}
-          onclick="reserveGift('${gift.id}')">
+          onclick="openPopup('${gift.id}')">
           ${gift.reserved ? "Já comprado 🎉" : "Eu comprei 🎁"}
         </button>
-        <input type="file" id="receiptInput-${gift.id}">
         <hr>
       `;
 
@@ -188,6 +196,53 @@ window.addEventListener("DOMContentLoaded", () => {
 
     renderGifts(filtered);
   });
+
+  function openPopup(id) {
+    selectedGiftId = id;
+    document.getElementById("popup").style.display = "block";
+  }
+
+  function closePopup() {
+    selectedGiftId = null;
+    document.getElementById("popup").style.display = "none";
+  }
+
+  async function confirmPurchase() {
+
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("Você precisa estar logado!");
+      return;
+    }
+
+    const file = document.getElementById("popupFile").files[0];
+
+    if (!file) {
+      alert("Selecione um comprovante!");
+      return;
+    }
+
+    const receiptUrl = await uploadReceipt(file);
+
+    if (!receiptUrl) {
+      alert("Erro ao enviar imagem.");
+      return;
+    }
+
+    await db.collection("gifts").doc(selectedGiftId).update({
+      reserved: true,
+      buyerEmail: user.email,
+      receiptUrl: receiptUrl
+    });
+
+    closePopup();
+    loadGifts();
+    alert("Comprovante enviado com sucesso!");
+  }
+
+
+
   loadGifts();
   console.log("🔥 Firestore conectado com sucesso!", db);
 </script>
