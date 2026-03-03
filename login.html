@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<body>
+
+  <h2>Login</h2>
+
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Senha">
+
+  <button onclick="login()">Entrar</button>
+  <button onclick="register()">Criar conta</button>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC63E0_3Hf_vy5LQou1B9NwXAJFum_zYUM",
+      authDomain: "lista-de-presente-da-su.firebaseapp.com",
+      projectId: "lista-de-presente-da-su",
+      storageBucket: "lista-de-presente-da-su.firebasestorage.app",
+      messagingSenderId: "647879876295",
+      appId: "1:647879876295:web:04d1ca400500b3170728e2",
+      measurementId: "G-G8SQBKV969"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      await auth.signInWithEmailAndPassword(email, password);
+
+      window.location.href = "index.html";
+    }
+
+    async function register() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      await auth.createUserWithEmailAndPassword(email, password);
+
+      window.location.href = "index.html";
+    }
+
+    // Se já estiver logado, pula login
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+
+</body>
+</html>
