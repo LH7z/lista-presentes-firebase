@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de presentes</title>
-  <!-- <link rel="stylesheet" href="styles.css"> -->
+  <link rel="stylesheet" href="style.css">
   <!-- <link rel="stylesheet" href="scripts.js"> -->
 </head>
 <body>
@@ -12,6 +12,12 @@
     <button onclick="logout()">Sair</button>
   </nav>
   <h1>🎁 Minha Lista de Aniversário</h1>
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Pesquisar presente..."
+    style="padding:10px; width:300px; margin-bottom:20px;"
+  >
   <div id="gifts">
   </div>
 
@@ -43,45 +49,84 @@
       }
     });
 
-    async function register() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
 
-      await auth.createUserWithEmailAndPassword(email, password);
-      alert("Conta criada!");
+  async function register() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    await auth.createUserWithEmailAndPassword(email, password);
+    alert("Conta criada!");
+  }
+
+  async function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    await auth.signInWithEmailAndPassword(email, password);
+    alert("Logado!");
+  }
+  let allGifts = [];
+
+  function renderGifts(gifts) {
+    const container = document.getElementById("gifts");
+    container.innerHTML = "";
+
+    gifts.forEach(gift => {
+      const div = document.createElement("div");
+
+      div.innerHTML = `
+        <h3>${gift.name}</h3>
+        <img src="${gift.imageUrl}" width="200">
+        <button ${gift.reserved ? "disabled" : ""}
+          onclick="reserveGift('${gift.id}')">
+          ${gift.reserved ? "Já comprado 🎉" : "Eu comprei 🎁"}
+        </button>
+        <input type="file" id="receiptInput-${gift.id}">
+        <hr>
+      `;
+
+      container.appendChild(div);
+    });
+  }
+
+async function loadGifts() {
+  const snapshot = await db.collection("gifts").get();
+  allGifts = [];
+
+  snapshot.forEach(doc => {
+    allGifts.push({ id: doc.id, ...doc.data() });
+  });
+
+  renderGifts(allGifts);
 }
 
-    async function login() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+window.addEventListener("DOMContentLoaded", () => {
+  loadGifts();
 
-      await auth.signInWithEmailAndPassword(email, password);
-      alert("Logado!");
-    }
+  const searchInput = document.getElementById("searchInput");
 
-    async function loadGifts() {
-      const snapshot = await db.collection("gifts").get();
-      const container = document.getElementById("gifts");
-      container.innerHTML = "";
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      const term = e.target.value.toLowerCase();
 
-      snapshot.forEach(doc => {
-        const gift = doc.data();
+      const filtered = allGifts.filter(gift =>
+        gift.name.toLowerCase().includes(term)
+      );
 
-        const div = document.createElement("div");
-        div.innerHTML = `
-          <h3>${gift.name}</h3>
-          <img src="${gift.imageUrl}" alt="${gift.name}" width="200">
-          <button ${gift.reserved ? "disabled" : ""}
-            onclick="reserveGift('${doc.id}')">
-            ${gift.reserved ? "Já comprado 🎉" : "Eu comprei 🎁"}
-          </button>
-          <input type="file" id="receiptInput-${doc.id}">
-          <hr>
-        `;
+      renderGifts(filtered);
+    });
+  }
+});
+  async function loadGifts() {
+    const snapshot = await db.collection("gifts").get();
+    allGifts = [];
 
-        container.appendChild(div);
-      });
-    }
+    snapshot.forEach(doc => {
+      allGifts.push({ id: doc.id, ...doc.data() });
+    });
+
+    renderGifts(allGifts);
+  };
 
     // ===== CLOUDINARY UPLOAD =====
   async function uploadReceipt(file) {
@@ -134,10 +179,18 @@
     alert("Comprovante enviado com sucesso!");
     loadGifts();
   }
+  document.getElementById("searchInput").addEventListener("input", (e) => {
+    const term = e.target.value.toLowerCase();
 
-    loadGifts();
-    console.log("🔥 Firestore conectado com sucesso!", db);
-  </script>
+    const filtered = allGifts.filter(gift =>
+      gift.name.toLowerCase().includes(term)
+    );
+
+    renderGifts(filtered);
+  });
+  loadGifts();
+  console.log("🔥 Firestore conectado com sucesso!", db);
+</script>
 
 </body>
 </html>
