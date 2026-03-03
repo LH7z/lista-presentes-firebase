@@ -11,24 +11,28 @@
   <nav>
     <button onclick="logout()">Sair</button>
   </nav>
-  <h1>🎁 Minha Lista de Aniversário</h1>
-  <input
-    type="text"
-    id="searchInput"
-    placeholder="Pesquisar presente..."
-    style="padding:10px; width:300px; margin-bottom:20px;"
-  >
-  <div id="gifts">
+  <div class="container">
+    <div class="seçao-topo">
+      <h1>🎁 Minha Lista de Aniversário</h1>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Pesquisar presente..."
+        style="padding:10px; width:300px; margin-bottom:20px;"
+      >
+    </div>
+    <div id="gifts">
+    </div>
+    <div id="popup" class="popup">
+      <div class="popup-content">
+        <h3>Anexar comprovante</h3>
+        <input type="file" id="popupFile">
+        <br><br>
+        <button onclick="confirmPurchase()">Confirmar</button>
+        <button onclick="closePopup()">Cancelar</button>
+      </div>
+    </div>
   </div>
-  <div id="popup" class="popup">
-  <div class="popup-content">
-    <h3>Anexar comprovante</h3>
-    <input type="file" id="popupFile">
-    <br><br>
-    <button onclick="confirmPurchase()">Confirmar</button>
-    <button onclick="closePopup()">Cancelar</button>
-  </div>
-</div>
 
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -73,6 +77,11 @@
     await auth.signInWithEmailAndPassword(email, password);
     alert("Logado!");
   }
+
+  async function logout() {
+    await auth.signOut();
+    window.location.href = "login.html";
+  }
   let allGifts = [];
   let selectedGiftId = null;
 
@@ -84,11 +93,13 @@
       const div = document.createElement("div");
 
       div.innerHTML = `
-        <h3>${gift.name}</h3>
         <img src="${gift.imageUrl}" width="200">
+        <h3>${gift.name}</h3>
+        <h4>${gift.price ? `R$ ${gift.price}` : "Preço não informado"}</h4>
+         ${gift.reserved && gift.buyerEmail ? `<p>Reservado por: ${gift.buyerEmail}</p>` : ""}
         <button ${gift.reserved ? "disabled" : ""}
           onclick="openPopup('${gift.id}')">
-          ${gift.reserved ? "Já comprado 🎉" : "Eu comprei 🎁"}
+          ${gift.reserved ? "Já comprado 🎉" : "Reservar 🎁"}
         </button>
         <hr>
       `;
