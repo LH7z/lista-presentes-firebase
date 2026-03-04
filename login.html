@@ -6,11 +6,12 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
+  <div class="container login-container">
     <div class="form-login">
       <h2>Login</h2>
       <input type="email" id="email" placeholder="Email">
       <input type="password" id="password" placeholder="Senha">
+      <input type="text" id="name" placeholder="Nome (apenas para registro)">
 
       <button onclick="login()">Entrar</button>
       <button onclick="register()">Criar conta</button>
@@ -46,8 +47,18 @@
     async function register() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
+      const name = document.getElementById("name").value;
+
+      if (!name) {
+        alert("Por favor, insira seu nome.");
+        return;
+      }
 
       await auth.createUserWithEmailAndPassword(email, password);
+
+      // Atualiza o nome do usuário
+      const user = auth.currentUser;
+      await user.updateProfile({ displayName: name });
 
       window.location.href = "index.html";
     }

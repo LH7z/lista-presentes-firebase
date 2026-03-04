@@ -25,11 +25,11 @@
     </div>
     <div id="popup" class="popup">
       <div class="popup-content">
-        <h3>Anexar comprovante</h3>
+        <h2>Anexar comprovante</h2>
         <input type="file" id="popupFile">
         <br><br>
         <button onclick="confirmPurchase()">Confirmar</button>
-        <button onclick="closePopup()">Cancelar</button>
+        <button id="popup-cancel" onclick="closePopup()">Cancelar</button>
       </div>
     </div>
   </div>
@@ -96,7 +96,7 @@
         <img src="${gift.imageUrl}" width="200">
         <h3>${gift.name}</h3>
         <h4>${gift.price ? `R$ ${gift.price}` : "Preço não informado"}</h4>
-         ${gift.reserved && gift.buyerEmail ? `<p>Reservado por: ${gift.buyerEmail}</p>` : ""}
+         ${gift.reserved && gift.buyerEmail ? `<p>Reservado por: ${gift.buyerName}</p>` : ""}
         <button ${gift.reserved ? "disabled" : ""}
           onclick="openPopup('${gift.id}')">
           ${gift.reserved ? "Já comprado 🎉" : "Reservar 🎁"}
@@ -192,7 +192,8 @@ window.addEventListener("DOMContentLoaded", () => {
     await db.collection("gifts").doc(id).update({
       reserved: true,
       buyerEmail: user.email,
-      receiptUrl: receiptUrl
+      receiptUrl: receiptUrl,
+      buyerName: user.displayName
     });
 
     alert("Comprovante enviado com sucesso!");
@@ -244,7 +245,8 @@ window.addEventListener("DOMContentLoaded", () => {
     await db.collection("gifts").doc(selectedGiftId).update({
       reserved: true,
       buyerEmail: user.email,
-      receiptUrl: receiptUrl
+      receiptUrl: receiptUrl,
+      buyerName: user.displayName
     });
 
     closePopup();
