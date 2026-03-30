@@ -4,12 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Presentes</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='24' font-size='24'>🎁</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
   <nav class="bg-white shadow-md p-4 flex justify-between items-center">
-    <h1 class="text-lg font-bold">🎁 Lista</h1>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center overflow-hidden">
+        <img src="images/icon.gif" alt="Logo" class="w-8 h-8 object-contain">
+      </div>
+
+      <div class="flex flex-col leading-tight">
+        <h1 class="text-sm font-semibold text-gray-800">Lista de Presentes</h1>
+        <span class="text-xs text-gray-500">🎁 da Su</span>
+      </div>
+    </div>
     <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm">
       Sair
     </button>
@@ -18,7 +28,7 @@
   <div class="max-w-5xl mx-auto p-4">
 
     <div class="text-center mb-6">
-      <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Minha Lista de Aniversário 🎉</h1>
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Minha Lista de Presentes 🎉</h1>
       <input
         type="text"
         id="searchInput"
