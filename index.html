@@ -1,38 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de presentes</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- <link rel="stylesheet" href="scripts.js"> -->
+  <title>Lista de Presentes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <nav>
-    <button onclick="logout()">Sair</button>
+<body class="bg-gray-100 min-h-screen">
+
+  <nav class="bg-white shadow-md p-4 flex justify-between items-center">
+    <h1 class="text-lg font-bold">🎁 Lista</h1>
+    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm">
+      Sair
+    </button>
   </nav>
-  <div class="container">
-    <div class="seçao-topo">
-      <h1>🎁 Minha Lista de Aniversário</h1>
+
+  <div class="max-w-5xl mx-auto p-4">
+
+    <div class="text-center mb-6">
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Minha Lista de Aniversário 🎉</h1>
       <input
         type="text"
         id="searchInput"
         placeholder="Pesquisar presente..."
-        style="padding:10px; width:300px; margin-bottom:20px;"
+        class="mt-4 w-full md:w-96 px-4 py-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
       >
     </div>
-    <div id="gifts">
-    </div>
-    <div id="popup" class="popup">
-      <div class="popup-content">
-        <h2>Anexar comprovante</h2>
-        <input type="file" id="popupFile">
-        <br><br>
-        <button onclick="confirmPurchase()">Confirmar</button>
-        <button id="popup-cancel" onclick="closePopup()">Cancelar</button>
+
+    <div id="gifts" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+
+  </div>
+
+  <div id="popup" class="fixed inset-0 bg-black/40 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-3xl p-6 w-[90%] max-w-sm shadow-2xl scale-95 opacity-0 transition-all duration-200" id="popupBox">
+      <h2 class="text-xl font-semibold mb-4">Enviar comprovante</h2>
+
+      <input type="file" id="popupFile" class="w-full text-sm mb-4" />
+
+      <div class="flex gap-2">
+        <button onclick="closePopup()" class="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition">
+          Cancelar
+        </button>
+        <button onclick="confirmPurchase()" class="flex-1 py-2 rounded-xl bg-black text-white hover:scale-105 active:scale-95 transition">
+          Confirmar
+        </button>
       </div>
     </div>
   </div>
+
 
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -93,15 +108,31 @@
       const div = document.createElement("div");
 
       div.innerHTML = `
-        <img src="${gift.imageUrl}" width="200">
-        <h3>${gift.name}</h3>
-        <h4>${gift.price ? `R$ ${gift.price}` : "Preço não informado"}</h4>
-         ${gift.reserved && gift.buyerEmail ? `<p>Reservado por: ${gift.buyerName}</p>` : ""}
-        <button ${gift.reserved ? "disabled" : ""}
-          onclick="openPopup('${gift.id}')">
-          ${gift.reserved ? "Já comprado 🎉" : "Reservar 🎁"}
-        </button>
-        <hr>
+        <div class="overflow-hidden">
+            <img src="${gift.imageUrl}" class="w-full h-52 object-cover group-hover:scale-105 transition duration-300">
+          </div>
+
+          <div class="p-4 flex flex-col flex-1">
+            <h3 class="font-semibold text-lg text-gray-800 line-clamp-1">${gift.name}</h3>
+            <p class="text-gray-500 text-sm mt-1">${gift.price ? `R$ ${gift.price}` : "Sem preço"}</p>
+
+            ${gift.reserved && gift.buyerName ? `
+              <div class="mt-2 text-xs text-green-600 font-medium">
+                ✔ Reservado por ${gift.buyerName}
+              </div>
+            ` : ""}
+
+            <button
+              ${gift.reserved === true ? "disabled" : ""}
+              onclick="openPopup('${gift.id}')"
+              class="mt-4 py-2 rounded-xl text-sm font-medium transition
+              ${gift.reserved === true
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-black to-gray-800 text-white shadow-md hover:scale-[1.03] active:scale-95"}
+              ">
+              ${gift.reserved === true ? "Indisponível" : "Reservar 🎁"}
+            </button>
+          </div>
       `;
 
       container.appendChild(div);
@@ -147,7 +178,6 @@ window.addEventListener("DOMContentLoaded", () => {
     renderGifts(allGifts);
   };
 
-    // ===== CLOUDINARY UPLOAD =====
   async function uploadReceipt(file) {
     const cloudName = "dft2szczd";
     const uploadPreset = "presentes da su";
@@ -185,10 +215,8 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // 🔥 ENVIA PARA CLOUDINARY
     const receiptUrl = await uploadReceipt(file);
 
-    // 🔥 SALVA NO FIRESTORE
     await db.collection("gifts").doc(id).update({
       reserved: true,
       buyerEmail: user.email,
@@ -209,15 +237,32 @@ window.addEventListener("DOMContentLoaded", () => {
     renderGifts(filtered);
   });
 
-  function openPopup(id) {
-    selectedGiftId = id;
-    document.getElementById("popup").style.display = "block";
-  }
+    function openPopup(id) {
+      selectedGiftId = id;
+      const popup = document.getElementById("popup");
+      const box = document.getElementById("popupBox");
 
-  function closePopup() {
-    selectedGiftId = null;
-    document.getElementById("popup").style.display = "none";
-  }
+      popup.classList.remove("hidden");
+
+      setTimeout(() => {
+        box.classList.remove("scale-95", "opacity-0");
+        box.classList.add("scale-100", "opacity-100");
+      }, 10);
+    }
+
+    function closePopup() {
+      const popup = document.getElementById("popup");
+      const box = document.getElementById("popupBox");
+
+      box.classList.add("scale-95", "opacity-0");
+      box.classList.remove("scale-100", "opacity-100");
+
+      setTimeout(() => {
+        popup.classList.add("hidden");
+      }, 150);
+
+      selectedGiftId = null;
+    }
 
   async function confirmPurchase() {
 
