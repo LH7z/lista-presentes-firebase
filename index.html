@@ -25,6 +25,10 @@
     </button>
   </nav>
 
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-black text-white px-5 py-3 rounded-xl shadow-lg opacity-0 pointer-events-none transition-all duration-300">
+    Mensagem aqui
+  </div>
+
   <div class="max-w-5xl mx-auto p-4">
 
     <div class="text-center mb-6">
@@ -92,7 +96,7 @@
     const password = document.getElementById("password").value;
 
     await auth.createUserWithEmailAndPassword(email, password);
-    alert("Conta criada!");
+    showToast("Conta criada!");
   }
 
   async function login() {
@@ -100,7 +104,7 @@
     const password = document.getElementById("password").value;
 
     await auth.signInWithEmailAndPassword(email, password);
-    alert("Logado!");
+    showToast("Logado!");
   }
 
   async function logout() {
@@ -214,14 +218,14 @@ window.addEventListener("DOMContentLoaded", () => {
     const user = auth.currentUser;
 
     if (!user) {
-      alert("Você precisa estar logado!");
+      showToast("Você precisa estar logado!");
       return;
     }
 
     const file = document.getElementById(`receiptInput-${id}`).files[0];
 
     if (!file) {
-      alert("Anexe o comprovante!");
+      showToast("Anexe o comprovante!");
       return;
     }
 
@@ -234,7 +238,7 @@ window.addEventListener("DOMContentLoaded", () => {
       buyerName: user.displayName
     });
 
-    alert("Comprovante enviado com sucesso!");
+    showToast("Comprovante enviado com sucesso!");
     loadGifts();
   }
   document.getElementById("searchInput").addEventListener("input", (e) => {
@@ -279,21 +283,21 @@ window.addEventListener("DOMContentLoaded", () => {
     const user = auth.currentUser;
 
     if (!user) {
-      alert("Você precisa estar logado!");
+      showToast("Você precisa estar logado!");
       return;
     }
 
     const file = document.getElementById("popupFile").files[0];
 
     if (!file) {
-      alert("Selecione um comprovante!");
+      showToast("Selecione um comprovante!");
       return;
     }
 
     const receiptUrl = await uploadReceipt(file);
 
     if (!receiptUrl) {
-      alert("Erro ao enviar imagem.");
+      showToast("Erro ao enviar imagem.");
       return;
     }
 
@@ -306,13 +310,29 @@ window.addEventListener("DOMContentLoaded", () => {
 
     closePopup();
     loadGifts();
-    alert("Comprovante enviado com sucesso!");
+    showToast("Comprovante enviado com sucesso!");
   }
-
-
 
   loadGifts();
   console.log("🔥 Firestore conectado com sucesso!", db);
+
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    if (!toast) {
+      console.error("Toast não encontrado no HTML");
+      return;
+    }
+
+    toast.textContent = message;
+
+    toast.classList.remove("opacity-0", "pointer-events-none");
+    toast.classList.add("opacity-100");
+
+    setTimeout(() => {
+      toast.classList.add("opacity-0");
+      toast.classList.remove("opacity-100");
+    }, 3000);
+  }
 </script>
 
 </body>

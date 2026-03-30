@@ -1,6 +1,6 @@
-
 import firebase from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js";
 import "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyC63E0_3Hf_vy5LQou1B9NwXAJFum_zYUM",
@@ -13,7 +13,6 @@ const firebaseConfig = {
 };
 
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
@@ -56,3 +55,4 @@ window.reserveGift = async function(id) {
 loadGifts();
 
 console.log("Firebase initialized and gifts loaded.");
+
